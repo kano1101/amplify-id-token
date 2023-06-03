@@ -14,8 +14,7 @@ const AuthComponent: React.FC = () => {
     try {
       let user = await Auth.signIn(username, password);
       if (user.challengeName === "NEW_PASSWORD_REQUIRED") {
-        Auth.completeNewPassword(user, password);
-        user = await Auth.signIn(username, password);
+        user = await Auth.completeNewPassword(user, password);
       }
       const token = user.signInUserSession.idToken.jwtToken;
       setIdToken(token);
