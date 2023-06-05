@@ -9,7 +9,6 @@ Amplify.configure(awsconfig);
 const AuthComponent: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const [idToken, setIdToken] = useState("");
   const [username, setUsername] = useState("");
 
   const handleLogin = async (email: string, password: string): Promise<any> => {
@@ -37,7 +36,7 @@ const AuthComponent: React.FC = () => {
   };
 
   const total = async () => {
-    const token = await handleLogin("", "");
+    const token = await handleLogin(email, password);
     await displayName(token);
   };
 
