@@ -33,6 +33,7 @@ const AuthComponent: React.FC = () => {
             method: "POST",
             mode: "cors",
             cache: "no-cache",
+            credentials: "include",
             headers,
           }
         )
