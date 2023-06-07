@@ -25,12 +25,10 @@ const AuthComponent: React.FC = () => {
       if (idToken !== "") {
         const headers = {
           Authorization: `Bearer ${idToken}`,
-          Method: "POST",
-          "Access-Control-Allow-Origin": "*",
         };
         fetch(
           "https://21xyrztruh.execute-api.ap-northeast-1.amazonaws.com/dev/auth",
-          { headers }
+          { method: "POST", headers }
         )
           .then((response) => response.json())
           .then((user) => setUsername(user.username));
