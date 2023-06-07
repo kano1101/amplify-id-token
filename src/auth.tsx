@@ -28,7 +28,13 @@ const AuthComponent: React.FC = () => {
         };
         fetch(
           "https://21xyrztruh.execute-api.ap-northeast-1.amazonaws.com/dev/auth",
-          { method: "POST", headers }
+          // "http://localhost:9000/lambda_url/",
+          {
+            method: "POST",
+            mode: "cors",
+            cache: "no-cache",
+            headers,
+          }
         )
           .then((response) => response.json())
           .then((user) => setUsername(user.username));
