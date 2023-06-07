@@ -23,7 +23,10 @@ const AuthComponent: React.FC = () => {
   const displayName = async (idToken: string) => {
     try {
       if (idToken !== "") {
-        const headers = { Authorization: `Bearer ${idToken}` };
+        const headers = {
+          Authorization: `Bearer ${idToken}`,
+          method: "POST",
+        };
         fetch(
           "https://21xyrztruh.execute-api.ap-northeast-1.amazonaws.com/dev/auth",
           { headers }
