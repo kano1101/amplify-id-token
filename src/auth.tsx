@@ -25,13 +25,13 @@ const AuthComponent: React.FC = () => {
       if (idToken !== "") {
         const headers = {
           Authorization: `Bearer ${idToken}`,
+          Origin: "https:////main.d3e5hnts8pqc2m.amplifyapp.com/",
         };
         fetch(
           "https://21xyrztruh.execute-api.ap-northeast-1.amazonaws.com/dev/auth",
           {
             method: "POST",
             mode: "cors",
-            cache: "no-cache",
             headers,
           }
         )
