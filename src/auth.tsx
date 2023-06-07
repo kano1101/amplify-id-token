@@ -24,7 +24,10 @@ const AuthComponent: React.FC = () => {
     try {
       if (idToken !== "") {
         const headers = { Authorization: `Bearer ${idToken}` };
-        fetch("http://localhost:9000/lambda-url/", { headers })
+        fetch(
+          "https://21xyrztruh.execute-api.ap-northeast-1.amazonaws.com/dev/auth",
+          { headers }
+        )
           .then((response) => response.json())
           .then((user) => setUsername(user.username));
       } else {
