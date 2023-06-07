@@ -10,6 +10,7 @@ const AuthComponent: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  // const [token, setToken] = useState("");
 
   const handleLogin = async (email: string, password: string): Promise<any> => {
     let user = await Auth.signIn(email, password);
@@ -25,8 +26,9 @@ const AuthComponent: React.FC = () => {
       if (idToken !== "") {
         const headers = {
           Authorization: `Bearer ${idToken}`,
-          Origin: "https:////main.d3e5hnts8pqc2m.amplifyapp.com/",
+          Origin: "https://main.d3e5hnts8pqc2m.amplifyapp.com",
         };
+        // setToken(idToken);
         fetch(
           "https://21xyrztruh.execute-api.ap-northeast-1.amazonaws.com/dev/auth",
           {
@@ -64,6 +66,7 @@ const AuthComponent: React.FC = () => {
       />
       <button onClick={() => total()}>これでOK</button>
       <p>ログインユーザ: {username}</p>
+      // <p>IDトークン: {token}</p>
     </div>
   );
 };
