@@ -66,7 +66,6 @@ const AuthComponent: React.FC = () => {
       />
       <button onClick={() => total()}>これでOK</button>
       <p>ログインユーザ: {username}</p>
-      // <p>IDトークン: {token}</p>
     </div>
   );
 };
