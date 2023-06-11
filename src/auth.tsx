@@ -9,7 +9,8 @@ Amplify.configure(awsconfig);
 const AuthComponent: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
+  const [cost, setCost] = useState([]);
+  // const [username, setUsername] = useState("");
   // const [token, setToken] = useState("");
 
   const handleLogin = async (email: string, password: string): Promise<any> => {
@@ -26,7 +27,8 @@ const AuthComponent: React.FC = () => {
       if (idToken !== "") {
         const headers = {
           Authorization: `Bearer ${idToken}`,
-          Origin: "https://main.d3e5hnts8pqc2m.amplifyapp.com",
+          // Origin: "https://main.d3e5hnts8pqc2m.amplifyapp.com",
+          // Origin: "http://localhost:3000",
         };
         // setToken(idToken);
         fetch(
@@ -38,7 +40,7 @@ const AuthComponent: React.FC = () => {
           }
         )
           .then((response) => response.json())
-          .then((user) => setUsername(user.username));
+          .then((amount_costs) => setCost(cost + amount_costs));
       } else {
         console.log("トークンがありません。先にログインしてください。");
       }
@@ -65,7 +67,9 @@ const AuthComponent: React.FC = () => {
         onChange={(e) => setPassword(e.target.value)}
       />
       <button onClick={() => total()}>これでOK</button>
-      <p>ログインユーザ: {username}</p>
+      <div>
+        <p>Cost: {cost}</p>
+      </div>
     </div>
   );
 };
