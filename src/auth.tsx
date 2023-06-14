@@ -22,9 +22,9 @@ type EnvContext = {
 };
 function getEnvContext(): EnvContext {
   const LAMBDA_URL =
-    process.env.LAMBDA_URL || "http://localhost:9000/lambda_url/";
-  const METHOD = process.env.METHOD || "GET";
-  const ORIGIN = process.env.ORIGIN;
+    process.env.REACT_APP_LAMBDA_URL || "http://localhost:9000/lambda_url/";
+  const METHOD = process.env.REACT_APP_METHOD || "GET";
+  const ORIGIN = process.env.REACT_APP_ORIGIN;
 
   const result = {
     LAMBDA_URL,
