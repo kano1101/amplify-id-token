@@ -15,6 +15,28 @@ type InputRequestHeader = {
   lambdaUrl: string;
 };
 
+type EnvContext = {
+  LAMBDA_URL: string;
+  METHOD: string;
+  ORIGIN?: string;
+};
+function getEnvContext(): EnvContext {
+  const LAMBDA_URL =
+    process.env.LAMBDA_URL || "http://localhost:9000/lambda_url/";
+  const METHOD = process.env.METHOD || "GET";
+  const ORIGIN = process.env.ORIGIN;
+
+  const result = {
+    LAMBDA_URL,
+    METHOD,
+    ORIGIN,
+  };
+
+  console.log(result);
+
+  return result;
+}
+
 async function handleLogin(email: string, password: string): Promise<string> {
   let user = await Auth.signIn(email, password);
   if (user.challengeName === "NEW_PASSWORD_REQUIRED") {
@@ -24,7 +46,10 @@ async function handleLogin(email: string, password: string): Promise<string> {
   return token;
 }
 
-function setAuthHeadersWithBearerAndOriginWithEnv(idToken: string): Header {
+function setAuthHeadersWithBearerAndOrigin(
+  ctx: EnvContext,
+  idToken: string
+): Header {
   let headers: { Authorization: string; Origin?: string } = {
     Authorization: `Bearer ${idToken}`,
   };
@@ -32,25 +57,24 @@ function setAuthHeadersWithBearerAndOriginWithEnv(idToken: string): Header {
   // 環境変数originが設定されていなければundefinedとなり、
   // API Gatewayの統合レスポンスに指定している
   // OPTIONSメソッドのマッピングテンプレートが自動的に適用される
-  headers.Origin = process.env.ORIGIN;
+  headers.Origin = ctx.ORIGIN;
 
   return headers;
 }
-function constructInputRequestHeaderFromEnv(
+function constructInputRequestHeader(
+  ctx: EnvContext,
   headers: Header
 ): InputRequestHeader {
   // 環境変数METHODを変えてPOSTやDELETEメソッドなどに対応させる
   // 環境変数に設定がなければ自動的にGETメソッドとなる
-  const method = process.env.METHOD || "GET";
+  const method = ctx.METHOD;
   const requestHeader = {
     method: method,
     headers,
   };
   // 環境変数PRODUCTION_URLにAPI GatewayのリソースへのURLを設定しておくこと
   // 指定がなければ自動的にhttp://localhost:9000/lambda_url/となる
-  const url: string =
-    process.env.PRODUCTION_URL || "http://localhost:9000/lambda_url/";
-  console.log(process.env);
+  const url: string = ctx.LAMBDA_URL;
   return {
     requestHeader,
     lambdaUrl: url,
@@ -86,9 +110,12 @@ const AuthComponent: React.FC = () => {
         console.log("トークンがありません。先にログインしてください。");
         return;
       }
-      const authHeaders = setAuthHeadersWithBearerAndOriginWithEnv(idToken);
 
-      const requestHeader = constructInputRequestHeaderFromEnv(authHeaders);
+      const ctx = getEnvContext();
+
+      const authHeaders = setAuthHeadersWithBearerAndOrigin(ctx, idToken);
+
+      const requestHeader = constructInputRequestHeader(ctx, authHeaders);
 
       const response = await fetchWithCors(requestHeader);
 
