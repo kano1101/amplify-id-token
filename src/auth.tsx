@@ -1,4 +1,3 @@
-// import React, { useEffect} from "react";
 import React, { useState } from "react";
 import { Amplify } from "aws-amplify";
 import { Auth } from "aws-amplify";
@@ -6,48 +5,101 @@ import awsconfig from "./aws-exports";
 
 Amplify.configure(awsconfig);
 
+type Header = {
+  Authorization: string;
+  Origin?: string;
+};
+type RequestHeader = { method: string; headers: Header };
+type InputRequestHeader = {
+  requestHeader: RequestHeader;
+  lambdaUrl: string;
+};
+
+async function handleLogin(email: string, password: string): Promise<string> {
+  let user = await Auth.signIn(email, password);
+  if (user.challengeName === "NEW_PASSWORD_REQUIRED") {
+    user = await Auth.completeNewPassword(user, password);
+  }
+  const token = user.signInUserSession.idToken.jwtToken;
+  return token;
+}
+
+function setAuthHeadersWithBearerAndOriginWithEnv(idToken: string): Header {
+  let headers: { Authorization: string; Origin?: string } = {
+    Authorization: `Bearer ${idToken}`,
+  };
+
+  // 環境変数originが設定されていなければundefinedとなり、
+  // API Gatewayの統合レスポンスに指定している
+  // OPTIONSメソッドのマッピングテンプレートが自動的に適用される
+  headers.Origin = process.env.ORIGIN;
+
+  return headers;
+}
+function constructInputRequestHeaderFromEnv(
+  headers: Header
+): InputRequestHeader {
+  // 環境変数METHODを変えてPOSTやDELETEメソッドなどに対応させる
+  // 環境変数に設定がなければ自動的にGETメソッドとなる
+  const method = process.env.METHOD || "GET";
+  const requestHeader = {
+    method: method,
+    headers,
+  };
+  // 環境変数PRODUCTION_URLにAPI GatewayのリソースへのURLを設定しておくこと
+  // 指定がなければ自動的にhttp://localhost:9000/lambda_url/となる
+  const url: string =
+    process.env.PRODUCTION_URL || "http://localhost:9000/lambda_url/";
+  return {
+    requestHeader,
+    lambdaUrl: url,
+  };
+}
+async function fetchWithCors(input: InputRequestHeader): Promise<Response> {
+  const fetcher = fetch(input.lambdaUrl, {
+    mode: "cors",
+    ...input.requestHeader,
+  });
+  return fetcher;
+}
+
+function sumCosts(amount_costs: any[]): number {
+  const costs: number[] = [];
+  amount_costs.forEach((item: any, index: number) => {
+    costs.push(item.amount);
+  });
+  const resultCost = costs.reduce(function (a, x) {
+    return a + x;
+  }, 0);
+  return resultCost;
+}
+
 const AuthComponent: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [cost, setCost] = useState([]);
-  // const [username, setUsername] = useState("");
-  // const [token, setToken] = useState("");
+  const [cost, setCost] = useState(0);
 
-  const handleLogin = async (email: string, password: string): Promise<any> => {
-    let user = await Auth.signIn(email, password);
-    if (user.challengeName === "NEW_PASSWORD_REQUIRED") {
-      user = await Auth.completeNewPassword(user, password);
-    }
-    const token = user.signInUserSession.idToken.jwtToken;
-    console.log("ログインしました。");
-    return token;
-  };
-  const displayName = async (idToken: string) => {
+  async function displayName(idToken: string) {
     try {
-      if (idToken !== "") {
-        const headers = {
-          Authorization: `Bearer ${idToken}`,
-          // Origin: "https://main.d3e5hnts8pqc2m.amplifyapp.com",
-          // Origin: "http://localhost:3000",
-        };
-        // setToken(idToken);
-        fetch(
-          "https://21xyrztruh.execute-api.ap-northeast-1.amazonaws.com/dev/auth",
-          {
-            method: "POST",
-            mode: "cors",
-            headers,
-          }
-        )
-          .then((response) => response.json())
-          .then((amount_costs) => setCost(cost + amount_costs));
-      } else {
+      if (idToken === "") {
         console.log("トークンがありません。先にログインしてください。");
+        return;
       }
+      const authHeaders = setAuthHeadersWithBearerAndOriginWithEnv(idToken);
+
+      const requestHeader = constructInputRequestHeaderFromEnv(authHeaders);
+
+      const response = await fetchWithCors(requestHeader);
+
+      const amount_costs = await response.json();
+
+      const resultCost = sumCosts(amount_costs);
+
+      setCost(resultCost);
     } catch (error) {
       console.error("Error logging in:", error);
     }
-  };
+  }
 
   const total = async () => {
     const token = await handleLogin(email, password);
@@ -66,7 +118,7 @@ const AuthComponent: React.FC = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={() => total()}>これでOK</button>
+      <button onClick={() => total()}>OK</button>
       <div>
         <p>Cost: {cost}</p>
       </div>
