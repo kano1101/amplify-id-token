@@ -16,18 +16,18 @@ type InputRequestHeader = {
 };
 
 type EnvContext = {
-  LAMBDA_URL: string;
+  LAMBDA_URL1: string;
   METHOD: string;
   ORIGIN?: string;
 };
 function getEnvContext(): EnvContext {
-  const LAMBDA_URL =
-    process.env.REACT_APP_URL || "http://localhost:9000/lambda_url/";
+  const LAMBDA_URL1 =
+    process.env.REACT_APP_LAMBDA_URL1 || "http://localhost:9000/lambda_url/";
   const METHOD = process.env.REACT_APP_METHOD || "GET";
   const ORIGIN = process.env.REACT_APP_ORIGIN;
 
   const result = {
-    LAMBDA_URL,
+    LAMBDA_URL1,
     METHOD,
     ORIGIN,
   };
@@ -74,7 +74,7 @@ function constructInputRequestHeader(
   };
   // 環境変数PRODUCTION_URLにAPI GatewayのリソースへのURLを設定しておくこと
   // 指定がなければ自動的にhttp://localhost:9000/lambda_url/となる
-  const url: string = ctx.LAMBDA_URL;
+  const url: string = ctx.LAMBDA_URL1;
   return {
     requestHeader,
     lambdaUrl: url,
