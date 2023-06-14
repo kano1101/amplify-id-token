@@ -50,6 +50,7 @@ function constructInputRequestHeaderFromEnv(
   // 指定がなければ自動的にhttp://localhost:9000/lambda_url/となる
   const url: string =
     process.env.PRODUCTION_URL || "http://localhost:9000/lambda_url/";
+  console.log(process.env);
   return {
     requestHeader,
     lambdaUrl: url,
