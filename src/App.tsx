@@ -1,6 +1,6 @@
 import React from "react";
-import AuthComponent from "./util/auth";
-import CostComponent from "./util/cost";
+import AuthComponent from "./auth";
+import CostComponent from "./cost";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import "./App.css";
 
