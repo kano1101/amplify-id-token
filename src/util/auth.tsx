@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Amplify } from "aws-amplify";
 import { Auth } from "aws-amplify";
-import awsconfig from "./aws-exports";
+import awsconfig from "../aws-exports";
 import { saveTokenToLocalStorage } from "./storage";
 import { getTokenFromLocalStorage } from "./storage";
 import {
